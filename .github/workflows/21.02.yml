@@ -20,7 +20,7 @@ jobs:
         path: /var/cache/apt
         key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/apt-packages.txt') }}
         restore-keys: |
-          ${{ runner.os }}-apt-
+          ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/apt-packages.txt') }}
 
     - name: Initialization environment
       env:
