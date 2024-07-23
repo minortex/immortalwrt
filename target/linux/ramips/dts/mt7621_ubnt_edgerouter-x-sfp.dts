@@ -58,3 +58,16 @@
 		sfp = <&sfp_eth5>;
 	};
 };
+
+&switch0 {
+	ports {
+		port@5 {
+			reg = <5>;
+			label = "eth5";
+			phy-handle = <&ephy7>;
+			phy-mode = "rgmii-rxid";
+			mtd-mac-address = <&factory 0x22>;
+			mtd-mac-address-increment = <5>;
+		};
+	};
+};

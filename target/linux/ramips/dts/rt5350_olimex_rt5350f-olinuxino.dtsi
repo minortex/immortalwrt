@@ -4,6 +4,7 @@
 	compatible = "olimex,rt5350f-olinuxino", "ralink,rt5350-soc";
 
 	aliases {
+		serial0 = &uartlite;
 		serial1 = &uart;
 	};
 };
@@ -60,8 +61,7 @@
 };
 
 &ethernet {
-	nvmem-cells = <&macaddr_factory_4>;
-	nvmem-cell-names = "mac-address";
+	mtd-mac-address = <&factory 0x4>;
 };
 
 &esw {
@@ -80,14 +80,4 @@
 
 &uart {
 	status = "okay";
-};
-
-&factory {
-	compatible = "nvmem-cells";
-	#address-cells = <1>;
-	#size-cells = <1>;
-
-	macaddr_factory_4: macaddr@4 {
-		reg = <0x4 0x6>;
-	};
 };

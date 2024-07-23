@@ -14,10 +14,12 @@ define Device/asus_rt-n56u
   DEVICE_MODEL := RT-N56U
   DEVICE_PACKAGES := kmod-usb-ohci kmod-usb2
   SUPPORTED_DEVICES += rt-n56u
+  DEFAULT := n
 endef
 TARGET_DEVICES += asus_rt-n56u
 
 define Device/belkin_f9k1109v1
+  $(Device/uimage-lzma-loader)
   SOC := rt3883
   BLOCKSIZE := 64k
   DEVICE_VENDOR := Belkin
@@ -25,7 +27,6 @@ define Device/belkin_f9k1109v1
   DEVICE_VARIANT := Version 1.0
   DEVICE_PACKAGES := kmod-usb-ohci kmod-usb2 kmod-usb-ledtrig-usbport
   IMAGE_SIZE := 7808k
-  KERNEL := kernel-bin | append-dtb | lzma -d16 | uImage lzma
   # Stock firmware checks for this uImage image name during upload.
   UIMAGE_NAME := N750F9K1103VB
 endef
@@ -52,7 +53,7 @@ define Device/edimax_br-6475nd
   IMAGE_SIZE := 7744k
   IMAGE/sysupgrade.bin := append-kernel | append-rootfs | \
 	edimax-header -s CSYS -m RN54 -f 0x70000 -S 0x01100000 | pad-rootfs | \
-	check-size | append-metadata
+	append-metadata | check-size
   DEVICE_VENDOR := Edimax
   DEVICE_MODEL := BR-6475nD
   SUPPORTED_DEVICES += br-6475nd
@@ -97,6 +98,7 @@ TARGET_DEVICES += omnima_hpm
 define Device/samsung_cy-swr1100
   $(Device/seama)
   SOC := rt3662
+  BLOCKSIZE := 64k
   IMAGE_SIZE := 7872k
   KERNEL := $(KERNEL_DTB)
   SEAMA_SIGNATURE := wrgnd10_samsung_ss815

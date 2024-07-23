@@ -10,27 +10,27 @@
 	model = "ZyXEL NR7101";
 
 	aliases {
-		led-boot = &led_system_green;
-		led-failsafe = &led_system_green;
-		led-running = &led_system_green;
-		led-upgrade = &led_system_green;
+		led-boot = &power;
+		led-failsafe = &power;
+		led-running = &power;
+		led-upgrade = &power;
 		label-mac-device = &gmac0;
 	};
 
 	leds {
 		compatible = "gpio-leds";
 
-		system_yellow {
+		led@13 {
 			label = "yellow:system";
 			gpios = <&gpio 13 GPIO_ACTIVE_HIGH>;
 		};
 
-		led_system_green: system_green {
+		power: led@14 {
 			label = "green:system";
 			gpios = <&gpio 14 GPIO_ACTIVE_HIGH>;
 		};
 
-		system_red {
+		led@15 {
 			label = "red:system";
 			gpios = <&gpio 15 GPIO_ACTIVE_HIGH>;
 		};
@@ -143,13 +143,8 @@
 	};
 };
 
-&ethernet {
-	pinctrl-0 = <&mdio_pins>, <&rgmii1_pins>;
-};
-
 &gmac0 {
-	nvmem-cells = <&macaddr_factory_e000>;
-	nvmem-cell-names = "mac-address";
+	mtd-mac-address = <&factory 0xe000>;
 };
 
 &switch0 {
@@ -165,15 +160,5 @@
 	gpio {
 		groups = "i2c", "rgmii2", "uart3", "jtag", "wdt";
 		function = "gpio";
-	};
-};
-
-&factory {
-	compatible = "nvmem-cells";
-	#address-cells = <1>;
-	#size-cells = <1>;
-
-	macaddr_factory_e000: macaddr@e000 {
-		reg = <0xe000 0x6>;
 	};
 };
