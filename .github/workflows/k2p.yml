@@ -1,0 +1,42 @@
+name: 构建固件
+
+on:
+  watch:
+    types: [started]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: k2p
+
+    - name: Cache APT packages
+      uses: actions/cache@v4.0.2
+      with:
+        path: /var/cache/apt
+        key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/apt-packages.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-apt-
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y $(cat .github/workflows/apt-packages.txt)
+    - name: Update feeds
+      run: |
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+    - name: Build
+      run: |
+        make -j$(nproc) download || make -j1 download
+        make -j$(nproc) || make -j1 V=s
+    - name: Upload firmware
+      uses: actions/upload-artifact@v2
+      with:
+        name: openwrt-firmware
+        path: bin/targets
