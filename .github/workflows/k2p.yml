@@ -1,4 +1,4 @@
-name: 构建固件
+name: 构建k2p
 
 on:
   watch:
