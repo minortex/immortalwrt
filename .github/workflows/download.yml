@@ -1,0 +1,35 @@
+name: 下载文件
+
+on:
+  watch:
+    types: [started]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: openwrt-21.02
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y $(cat .github/workflows/apt-packages.txt)
+    - name: Update feeds
+      run: |
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+    - name: Build
+      run: |
+        make -j$(nproc) download || make -j1 download
+        mkdir bin
+        tar -xzvf bin/dl.tgz dl/*
+    - name: Upload firmware
+      uses: actions/upload-artifact@v2
+      with:
+        name: openwrt-firmware
+        path: bin/targets
