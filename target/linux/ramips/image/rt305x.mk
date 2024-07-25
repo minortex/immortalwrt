@@ -1237,7 +1237,6 @@ endef
 TARGET_DEVICES += zyxel_nbg-419n
 
 define Device/zyxel_nbg-419n-v2
-  $(Device/uimage-lzma-loader)
   SOC := rt3352
   IMAGE_SIZE := 7872k
   DEVICE_VENDOR := ZyXEL

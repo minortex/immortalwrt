@@ -37,9 +37,25 @@
 		compatible = "mti,cpu-interrupt-controller";
 	};
 
+	reserved-memory {
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		ranges;
+
+		ramoops@3f00000 {
+			compatible = "ramoops";
+			reg = <0x3f00000 0x80000>;
+
+			record-size = <0x10000>;
+			console-size = <0x10000>;
+			ftrace-size = <0x20000>;
+		};
+	};
+
 	chosen {
 		bootargs = "console=ttyS0,57600";
 	};
+
 
 	pll: pll {
 		compatible = "mediatek,mt7621-pll", "syscon";
@@ -47,6 +63,7 @@
 		#clock-cells = <1>;
 		clock-output-names = "cpu", "bus";
 	};
+
 
 	sysclock: sysclock {
 		#clock-cells = <0>;
@@ -66,6 +83,7 @@
 
 		sysc: syscon@0 {
 			compatible = "mtk,mt7621-sysc", "syscon";
+
 			reg = <0x0 0x100>;
 		};
 
@@ -79,6 +97,7 @@
 			#interrupt-cells = <2>;
 			compatible = "mediatek,mt7621-gpio";
 			gpio-controller;
+			gpio-ranges = <&pinctrl 0 0 95>;
 			interrupt-controller;
 			reg = <0x600 0x100>;
 			interrupt-parent = <&gic>;
@@ -137,7 +156,9 @@
 		};
 
 		memc: syscon@5000 {
+
 			compatible = "mtk,mt7621-memc", "syscon";
+
 			reg = <0x5000 0x1000>;
 		};
 
@@ -197,7 +218,9 @@
 			compatible = "ralink,mt7621-spi";
 			reg = <0xb00 0x100>;
 
+
 			clocks = <&pll MT7621_CLK_BUS>;
+
 
 			resets = <&rstctrl 18>;
 			reset-names = "spi";
@@ -406,6 +429,7 @@
 			compatible = "mti,gic-timer";
 			interrupts = <GIC_LOCAL 1 IRQ_TYPE_NONE>;
 			clocks = <&pll MT7621_CLK_CPU>;
+
 		};
 	};
 
@@ -438,26 +462,42 @@
 		clock-names = "nfi_clk";
 	};
 
+	crypto: crypto@1e004000 {
+		compatible = "mediatek,mtk-eip93";
+		reg = <0x1e004000 0x1000>;
+
+		interrupt-parent = <&gic>;
+		interrupts = <GIC_SHARED 19 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	ethsys: ethsys@1e000000 {
+		compatible = "mediatek,mt7621-ethsys", "syscon";
+		reg = <0x1e000000 0x8000>;
+	};
+
 	ethernet: ethernet@1e100000 {
-		compatible = "mediatek,mt7621-eth";
+		compatible = "mediatek,mt7621-eth","syscon";
 		reg = <0x1e100000 0x10000>;
+
 
 		clocks = <&sysclock>;
 		clock-names = "ethif";
 
-		#address-cells = <1>;
-		#size-cells = <0>;
 
-		resets = <&rstctrl 6 &rstctrl 23>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		resets = <&rstctrl 6>, <&rstctrl 23>;
 		reset-names = "fe", "eth";
 
 		interrupt-parent = <&gic>;
 		interrupts = <GIC_SHARED 3 IRQ_TYPE_LEVEL_HIGH>;
 
-		mediatek,ethsys = <&sysc>;
+		mediatek,ethsys = <&ethsys>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&mdio_pins>, <&rgmii1_pins>, <&rgmii2_pins>;
+
 
 		gmac0: mac@0 {
 			compatible = "mediatek,eth-mac";
@@ -474,8 +514,13 @@
 		gmac1: mac@1 {
 			compatible = "mediatek,eth-mac";
 			reg = <1>;
-			status = "disabled";
-			phy-mode = "rgmii-rxid";
+			phy-mode = "rgmii";
+
+			fixed-link {
+				speed = <1000>;
+				full-duplex;
+				pause;
+			};
 		};
 
 		mdio: mdio-bus {
@@ -541,6 +586,28 @@
 				};
 			};
 		};
+
+	};
+
+	gsw: gsw {
+		compatible = "mediatek,mt753x";
+		mt7530,direct-phy-access;
+		interrupt-parent = <&gic>;
+		interrupts = <GIC_SHARED 23 IRQ_TYPE_LEVEL_HIGH>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+	};
+
+
+	hnat: hnat@1e100000 {
+		compatible = "mediatek,mtk-hnat_v1";
+		reg = <0x1e100000 0x3000>;
+
+		resets = <&ethsys 0>;
+		reset-names = "mtketh";
+
+		status = "disabled";
 	};
 
 	pcie: pcie@1e140000 {
@@ -557,15 +624,18 @@
 
 		device_type = "pci";
 
+
 		ranges = <0x02000000 0 0x00000000 0x60000000 0 0x10000000>, /* pci memory */
 			 <0x01000000 0 0x00000000 0x1e160000 0 0x00010000>; /* io space */
+
+
+		status = "disabled";
 
 		interrupt-parent = <&gic>;
 		interrupts = <GIC_SHARED 4 IRQ_TYPE_LEVEL_HIGH
 				GIC_SHARED 24 IRQ_TYPE_LEVEL_HIGH
 				GIC_SHARED 25 IRQ_TYPE_LEVEL_HIGH>;
 
-		status = "disabled";
 
 		resets = <&rstctrl 24>, <&rstctrl 25>, <&rstctrl 26>;
 		reset-names = "pcie0", "pcie1", "pcie2";
@@ -582,6 +652,7 @@
 			#size-cells = <2>;
 			device_type = "pci";
 			ranges;
+
 		};
 
 		pcie1: pcie@1,0 {
@@ -590,6 +661,7 @@
 			#size-cells = <2>;
 			device_type = "pci";
 			ranges;
+
 		};
 
 		pcie2: pcie@2,0 {
@@ -598,18 +670,21 @@
 			#size-cells = <2>;
 			device_type = "pci";
 			ranges;
+
 		};
 	};
 
 	pcie0_phy: pcie-phy@1e149000 {
 		compatible = "mediatek,mt7621-pci-phy";
 		reg = <0x1e149000 0x0700>;
+
 		#phy-cells = <1>;
 	};
 
 	pcie2_phy: pcie-phy@1e14a000 {
 		compatible = "mediatek,mt7621-pci-phy";
 		reg = <0x1e14a000 0x0700>;
+
 		#phy-cells = <1>;
 	};
 };
