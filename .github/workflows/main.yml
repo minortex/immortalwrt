@@ -27,7 +27,7 @@ jobs:
     - name: Build
       run: |
         make -j$(nproc) download || make -j1 download
-        mkdir bin
+        mkdir bin || ls
         tar -czvf bin/dl.tgz dl/*
     - name: Upload firmware
       uses: actions/upload-artifact@v2
