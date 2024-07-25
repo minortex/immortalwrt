@@ -26,8 +26,9 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         sudo apt-get update
-        sudo apt-get install -y $(cat .github/workflows/apt-packages.txt)
-
+        # sudo apt-get install -y $(cat .github/workflows/apt-packages.txt)
+        sudo apt-get install -y binutils bzip2 diff find flex gawk gcc getopt grep install libc-dev libz-dev \
+        make perl python3 rsync subversion unzip which
     - name: Update feeds
       run: |
         ./scripts/feeds update -a
