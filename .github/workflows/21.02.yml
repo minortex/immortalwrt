@@ -1,8 +1,7 @@
 name: 构建固件
 
 on:
-  watch:
-    types: [started]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,7 +11,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       with:
-        ref: openwrt-21.02
+        ref: openwrt_test
 
     - name: Cache APT packages
       uses: actions/cache@v4.0.2
