@@ -34,8 +34,10 @@ jobs:
 
     - name: Build
       run: |
-        make -j$(nproc) download || make -j1 download
-        make -j$(nproc) || make -j1 V=s
+        # make -j$(nproc) download || make -j1 download
+        # make -j$(nproc) || make -j1 V=s
+        mkdir -p ./bin/targets || ls
+        tar -czvf ./bin/targets/dl.tgz ./feeds
 
     - name: Upload firmware
       uses: actions/upload-artifact@v2
