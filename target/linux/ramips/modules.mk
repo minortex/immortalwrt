@@ -134,30 +134,36 @@ endef
 
 $(eval $(call KernelPackage,sound-mt7620))
 
-define KernelPackage/crypto-hw-eip93
-  SECTION:=kernel
-  CATEGORY:=Kernel modules
-  SUBMENU:=Cryptographic API modules
-  TITLE:=MediaTek EIP93 crypto module
-  DEPENDS:= \
-	  @TARGET_ramips_mt7621 \
-	  +kmod-crypto-aead \
-	  +kmod-crypto-authenc \
-	  +kmod-crypto-des \
-	  +kmod-crypto-md5 \
-	  +kmod-crypto-sha1 \
-	  +kmod-crypto-sha256
+define KernelPackage/ramips_hnat
+  SUBMENU:=Network Devices
+  TITLE:=ramips HNAT module
+  DEPENDS:=@TARGET_ramips +kmod-nf-conntrack
   KCONFIG:= \
-	  CONFIG_CRYPTO_DEV_EIP93 \
-	  CONFIG_CRYPTO_DEV_EIP93_AES=y \
-	  CONFIG_CRYPTO_DEV_EIP93_DES=y \
-	  CONFIG_CRYPTO_DEV_EIP93_AEAD=y
-  FILES:=$(LINUX_DIR)/drivers/crypto/mtk-eip93/crypto-hw-eip93.ko
-  AUTOLOAD:=$(call AutoProbe,crypto-hw-eip93)
+	CONFIG_BRIDGE_NETFILTER=y \
+	CONFIG_NETFILTER_FAMILY_BRIDGE=y 
+  FILES:= \
+        $(LINUX_DIR)/drivers/net/ethernet/mediateksdk/mtk_hnat/mtkhnat.ko
 endef
 
-define KernelPackage/crypto-hw-eip93/description
- Kernel module to enable EIP-93 Crypto engine as found in the Mediatek MT7621 SoC.
+define KernelPackage/ramips_hnat/description
+  Kernel modules for ramips HW NAT offloading
 endef
 
-$(eval $(call KernelPackage,crypto-hw-eip93))
+$(eval $(call KernelPackage,ramips_hnat))
+
+define KernelPackage/gsw150
+  SUBMENU:=Other modules
+  TITLE:=Intel gsw150 switch driver
+  DEPENDS:=@TARGET_ramips
+  KCONFIG:= \
+	CONFIG_GSW150_SUPPORT
+  FILES:= \
+	$(LINUX_DIR)/drivers/net/phy/intel/gsw150/gsw150.ko
+  AUTOLOAD:=$(call AutoLoad,25,gsw150,1)
+endef
+
+define KernelPackage/gsw150/description
+ Phy modules for intel gsw150 switch driver.
+endef
+
+$(eval $(call KernelPackage,gsw150))
